@@ -1,19 +1,21 @@
-from win10toast import ToastNotifier
+from plyer import notification
 import threading
 
 def send_toast(message):
-    toaster = ToastNotifier()
-    toaster.show_toast(
-        "허드렛일 예약 알림",
-        message,
-        duration=10,
-        threaded=True
+    """plyer를 사용하여 윈도우 알림창을 띄우는 함수 (Python 3.13 호환)"""
+    notification.notify(
+        title="허드렛일 예약 알림",
+        message=message,
+        app_name="허드렛일 프로그램",
+        timeout=10  # 알림이 유지되는 시간(초)
     )
 
-def print_message(msg,time):
+def reserve_notification(msg, seconds):
+    """메인 메뉴에서 넘겨받은 초(seconds)만큼 대기 후 알림을 실행하는 스레드 타이머"""
     try:
-        timer = threading.Timer(time, send_toast, args = [msg])
+        # 백그라운드에서 지정된 초만큼 대기 후 send_toast(msg) 실행
+        timer = threading.Timer(seconds, send_toast, args=[msg])
         timer.start()
         return True
-    except ValueError:
+    except Exception:
         return False
