@@ -1,6 +1,6 @@
 import customtkinter as ctk
 import sendingNotification #알림기능용 파일
-
+import shuttingDown#꺼짐기능용 파일
 #할일 리스트
 #바탕화면 정리
 #다운로드 화면 정리
@@ -26,6 +26,9 @@ class App(ctk.CTk):
         self.create_setup_screen()
 
         # --- 3. 꺼짐 프레임 ---
+        self.shutdown_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.create_shutDown_screen()
+        
 
     def create_main_menu(self):
         """메인 메뉴 화면 구성"""
@@ -37,7 +40,7 @@ class App(ctk.CTk):
         self.btn1.pack(pady=15)
 
         #람다는 한줄짜리 익명함수임        
-        self.btn2 = ctk.CTkButton(self.main_frame, text="2. 꺼짐 설정", command=lambda: print("꺼짐 설정"))
+        self.btn2 = ctk.CTkButton(self.main_frame, text="2. 꺼짐 설정", command=self.show_shutdown_screen)
         self.btn2.pack(pady=15)
         
         self.btn3 = ctk.CTkButton(self.main_frame, text="3. 다운로드 파일 정리", command=lambda: print("다운로드 정리"))
@@ -81,46 +84,78 @@ class App(ctk.CTk):
         self.btn_back = ctk.CTkButton(self.setup_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.show_main_menu)
         self.btn_back.pack(pady=5)
 
-    def create_shutDown_screen(self):#작업중 끝남...................
-        """꺼짐 화면 구성"""
-        self.setup_label = ctk.CTkLabel(self.setup_frame, text="꺼짐 시간 입력", font=("Pretendard", 24))
-        self.setup_label.pack(pady=20)
+    def create_shutDown_screen(self):#내일 작성해
+        """꺼짐 화면 구성 (self.shutdown_frame 사용)"""
+        self.sd_label = ctk.CTkLabel(self.shutdown_frame, text="컴퓨터 꺼짐 예약", font=("Pretendard", 24))
+        self.sd_label.pack(pady=20)
 
-        # 시간 입력 레이아웃 (분/초 나란히 배치)
-        ctk.CTkLabel(self.setup_frame, text="예약 시간 설정", font=("Pretendard", 14)).pack(pady=(10, 0))
+        ctk.CTkLabel(self.shutdown_frame, text="몇 분 몇 초 뒤에 끌지 입력하쇼", font=("Pretendard", 14)).pack(pady=(10, 0))
         
-        time_frame = ctk.CTkFrame(self.setup_frame, fg_color="transparent")
+        time_frame = ctk.CTkFrame(self.shutdown_frame, fg_color="transparent")
         time_frame.pack(pady=10)
 
-        self.min_entry = ctk.CTkEntry(time_frame, width=70, placeholder_text="0")
-        self.min_entry.pack(side="left", padx=5)
+        self.min_entry_sd = ctk.CTkEntry(time_frame, width=70, placeholder_text="0")
+        self.min_entry_sd.pack(side="left", padx=5)
         ctk.CTkLabel(time_frame, text="분", font=("Pretendard", 14)).pack(side="left", padx=(0, 15))
 
-        self.sec_entry = ctk.CTkEntry(time_frame, width=70, placeholder_text="0")
-        self.sec_entry.pack(side="left", padx=5)
+        self.sec_entry_sd = ctk.CTkEntry(time_frame, width=70, placeholder_text="0")
+        self.sec_entry_sd.pack(side="left", padx=5)
         ctk.CTkLabel(time_frame, text="초", font=("Pretendard", 14)).pack(side="left")
 
-        # 오류 및 상태 표시용 텍스트
-        self.status_label = ctk.CTkLabel(self.setup_frame, text="", font=("Pretendard", 13))
-        self.status_label.pack(pady=10)
+        self.status_label_sd = ctk.CTkLabel(self.shutdown_frame, text="", font=("Pretendard", 13))
+        self.status_label_sd.pack(pady=10)
 
-        # 하단 버튼
-        self.btn_save = ctk.CTkButton(self.setup_frame, text="예약 완료", fg_color="#2ecc71", hover_color="#27ae60", command=self.confirm_alarm)
-        self.btn_save.pack(pady=15)
+        # 하단 버튼 구조
+        self.btn_save_sd = ctk.CTkButton(self.shutdown_frame, text="종료 예약 완료", fg_color="#2ecc71", hover_color="#27ae60", command=self.confirm_validation_shutting_down)
+        self.btn_save_sd.pack(pady=10)
 
-        self.btn_back = ctk.CTkButton(self.setup_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.show_main_menu)
-        self.btn_back.pack(pady=5)
+        # 종료예약 취소버튼
+        self.btn_cancel_sd = ctk.CTkButton(self.shutdown_frame, text="종료 예약 취소", fg_color="#f39c12", hover_color="#d35400", command=self.cancel_shutdown_job)
+        self.btn_cancel_sd.pack(pady=5)
+
+        self.btn_back_sd = ctk.CTkButton(self.shutdown_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.show_main_menu)
+        self.btn_back_sd.pack(pady=5)
+
+
+    # 기존 show_main_menu 수정 (모든 프레임을 언팩하도록 안전장치)
+    def show_main_menu(self):
+        self.setup_frame.pack_forget()
+        self.shutdown_frame.pack_forget()
+        self.main_frame.pack(fill="both", expand=True)
+
+    def confirm_validation_shutting_down(self):
+        """꺼짐 시간 검증 및 파일 호출"""
+        min_str = self.min_entry_sd.get() or "0"
+        sec_str = self.sec_entry_sd.get() or "0"
+        minutes = float(min_str)
+        seconds = float(sec_str)
+        try:     
+            minutes = float(min_str)
+            seconds = float(sec_str)
+            total_sec = minutes * 60 + seconds
+
+            if total_sec <= 0:
+                self.status_label_sd.configure(text="0보단... 큰수로...", text_color="#e74c3c")
+                return
+                
+        except ValueError:
+            self.status_label_sd.configure(text="시간엔 숫자만.......", text_color="#e74c3c")
+            return
+
+        # shuttingDown.py 내부 함수 호출
+        shuttingDown.ShuttingDown(int(total_sec))
+
+    def cancel_shutdown_job(self):
+        """종료 취소 버튼 맵핑"""
+        shuttingDown.CancelShuttingDown()
+        self.show_main_menu()
+            
 
     def show_setup_screen(self):
         """메인 메뉴 숨기고 설정창 열기"""
         self.status_label.configure(text="") # 상태창 초기화
         self.main_frame.pack_forget()
         self.setup_frame.pack(fill="both", expand=True)
-
-    def show_main_menu(self):
-        """설정창 숨기고 메인 메뉴 열기"""
-        self.setup_frame.pack_forget()
-        self.main_frame.pack(fill="both", expand=True)
 
     def confirm_alarm(self):
         """예약 완료 버튼을 눌렀을 때 검증 및 실행"""
