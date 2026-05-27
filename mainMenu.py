@@ -21,32 +21,32 @@ class App(ctk.CTk):
         # --- 1. 메인 메뉴 프레임 ---
         self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.main_frame.pack(fill="both", expand=True)
-        self.create_main_menu()
+        self.CreateMainMenu()
 
         # --- 2. 알림 설정 프레임  ---
         self.setup_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.create_setup_screen()
+        self.CreateSetupScreen()
 
         # --- 3. 꺼짐 프레임 ---
         self.shuttingDown_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.create_shuttingDown_screen()
+        self.CreateShuttingDownScreen()
 
         self.shuttingDownMessage = ctk.CTkLabel(self.main_frame, text="", font=("Pretendard", 30))
         self.shuttingDownMessage.pack(pady=20)
 
 #==============================================================================================================================================================================
         
-    def create_main_menu(self):
+    def CreateMainMenu(self):
         """메인 메뉴 화면 구성"""
         self.label = ctk.CTkLabel(self.main_frame, text="허드렛일 목록", font=("Pretendard", 30))
         self.label.pack(pady=30)
 
         # 각 버튼을 고유 변수로 지정하여 겹치지 않게 처리
-        self.btn1 = ctk.CTkButton(self.main_frame, text="1. 알림 설정", command=self.show_setup_screen)
+        self.btn1 = ctk.CTkButton(self.main_frame, text="1. 알림 설정", command=self.ShowSetupScreen)
         self.btn1.pack(pady=15)
 
         #람다는 한줄짜리 익명함수임        
-        self.btn2 = ctk.CTkButton(self.main_frame, text="2. 꺼짐 설정", command=self.show_shuttingDown_screen)
+        self.btn2 = ctk.CTkButton(self.main_frame, text="2. 꺼짐 설정", command=self.ShowShuttingDownScreen)
         self.btn2.pack(pady=15)
         
         self.btn3 = ctk.CTkButton(self.main_frame, text="3. 다운로드 파일 정리", command=lambda: print("다운로드 정리"))
@@ -55,7 +55,7 @@ class App(ctk.CTk):
         self.btn4 = ctk.CTkButton(self.main_frame, text="4. 바탕화면 정리", command=lambda: print("바탕화면 정리"))
         self.btn4.pack(pady=15)
 
-    def show_main_menu(self):
+    def ShowMainMenu(self):
         """기존 show_main_menu 수정 (모든 프레임을 언팩하도록 안전장치)"""
         self.setup_frame.pack_forget()
         self.shuttingDown_frame.pack_forget()
@@ -63,7 +63,7 @@ class App(ctk.CTk):
 
 #==============================================================================================================================================================================
         
-    def create_setup_screen(self):
+    def CreateSetupScreen(self):
         """알림 설정 상세 화면 구성"""
         self.setup_label = ctk.CTkLabel(self.setup_frame, text="알림 세부 설정", font=("Pretendard", 24))
         self.setup_label.pack(pady=20)
@@ -92,19 +92,19 @@ class App(ctk.CTk):
         self.status_label.pack(pady=10)
 
         # 하단 버튼
-        self.btn_save = ctk.CTkButton(self.setup_frame, text="예약 완료", fg_color="#2ecc71", hover_color="#27ae60", command=self.confirm_alarm)
+        self.btn_save = ctk.CTkButton(self.setup_frame, text="예약 완료", fg_color="#2ecc71", hover_color="#27ae60", command=self.ConfirmAlarm)
         self.btn_save.pack(pady=15)
 
-        self.btn_back = ctk.CTkButton(self.setup_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.show_main_menu)
+        self.btn_back = ctk.CTkButton(self.setup_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.ShowMainMenu)
         self.btn_back.pack(pady=5)
 
-    def show_setup_screen(self):
+    def ShowSetupScreen(self):
         """메인 메뉴 숨기고 설정창 열기"""
         self.status_label.configure(text="") # 상태창 초기화
         self.main_frame.pack_forget()
         self.setup_frame.pack(fill="both", expand=True)
 
-    def confirm_alarm(self):
+    def ConfirmAlarm(self):
         """예약 완료 버튼을 눌렀을 때 검증 및 실행"""
         msg = self.msg_entry.get()
         min_str = self.min_entry.get() or "0"
@@ -135,18 +135,16 @@ class App(ctk.CTk):
             return
 
         # 3. 독립 파일(`sendingNotification.py`)의 예약 함수 호출
-        sendingNotification.reserve_notification(msg, total_sec)
+        sendingNotification.ReserveNotification(msg, total_sec)
         
         # 입력칸 청소 및 메인 복귀
         self.msg_entry.delete(0, 'end')
         self.min_entry.delete(0, 'end')
         self.sec_entry.delete(0, 'end')
         
-        self.show_main_menu()
-
-#==============================================================================================================================================================================
+        self.ShowMainMenu()
         
-    def create_shuttingDown_screen(self):
+    def CreateShuttingDownScreen(self):
         """꺼짐 화면 구성 (self.shuttingDown_frame 사용)"""
         self.sd_label = ctk.CTkLabel(self.shuttingDown_frame, text="컴퓨터 꺼짐 예약", font=("Pretendard", 24))
         self.sd_label.pack(pady=20)
@@ -168,24 +166,23 @@ class App(ctk.CTk):
         self.status_label_sd.pack(pady=10)
 
         # 하단 버튼 구조
-        self.btn_save_sd = ctk.CTkButton(self.shuttingDown_frame, text="종료 예약 완료", fg_color="#2ecc71", hover_color="#27ae60", command=self.confirm_validation_shutting_down)
+        self.btn_save_sd = ctk.CTkButton(self.shuttingDown_frame, text="종료 예약 완료", fg_color="#2ecc71", hover_color="#27ae60", command=self.ConfirmValidationShuttingDown)
         self.btn_save_sd.pack(pady=10)
 
         # 종료예약 취소버튼
-        self.btn_cancel_sd = ctk.CTkButton(self.shuttingDown_frame, text="종료 예약 취소", fg_color="#f39c12", hover_color="#d35400", command=self.cancel_shuttingDown_job)
+        self.btn_cancel_sd = ctk.CTkButton(self.shuttingDown_frame, text="종료 예약 취소", fg_color="#f39c12", hover_color="#d35400", command=self.CancelShuttingDownJob)
         self.btn_cancel_sd.pack(pady=5)
 
-        self.btn_back_sd = ctk.CTkButton(self.shuttingDown_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.show_main_menu)
+        self.btn_back_sd = ctk.CTkButton(self.shuttingDown_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.ShowMainMenu)
         self.btn_back_sd.pack(pady=5)
 
-
-    def show_shuttingDown_screen(self):
+    def ShowShuttingDownScreen(self):
         """메인 메뉴 숨기고 꺼짐 설정창 열기"""
         self.status_label_sd.configure(text="") # 상태창 초기화
         self.main_frame.pack_forget()
         self.shuttingDown_frame.pack(fill="both", expand=True)
 
-    def confirm_validation_shutting_down(self):
+    def ConfirmValidationShuttingDown(self):
         """꺼짐 시간 검증 및 파일 호출"""
         min_str = self.min_entry_sd.get() or "0"
         sec_str = self.sec_entry_sd.get() or "0"
@@ -207,19 +204,19 @@ class App(ctk.CTk):
         shuttingDown.ShuttingDown(int(total_sec))
 
         self.remaining_shuttingDown_sec = int(total_sec)
-        self.update_shuttingDown_timer() 
+        self.UpdateShuttingDownTimer() 
         self.min_entry_sd.delete(0, 'end')
         self.sec_entry_sd.delete(0, 'end')
-        self.show_main_menu()
+        self.ShowMainMenu()
 
-    def cancel_shuttingDown_job(self):
+    def CancelShuttingDownJob(self):
         """종료 취소 버튼 맵핑"""
         shuttingDown.CancelShuttingDown()
         self.remaining_shuttingDown_sec = 0
         self.shuttingDownMessage.configure(text="")
-        self.show_main_menu()
+        self.ShowMainMenu()
 
-    def update_shuttingDown_timer(self):
+    def UpdateShuttingDownTimer(self):
         if self.remaining_shuttingDown_sec > 0:
             m = self.remaining_shuttingDown_sec // 60 #파이썬에서 //은 나머지는 제외 몫만 남긴다
             s = self.remaining_shuttingDown_sec % 60
@@ -230,14 +227,13 @@ class App(ctk.CTk):
             # 1초 감소
             self.remaining_shuttingDown_sec -= 1
             
-            # 1000밀리초(1초) 뒤에 자기 자신(update_shuttingDown_timer)을 다시 호출
-            self.after(1000, self.update_shuttingDown_timer)
+            # 1000밀리초(1초) 뒤에 자기 자신(UpdateShuttingDownTimer)을 다시 호출
+            self.after(1000, self.UpdateShuttingDownTimer)
         else:
             # 예약 시간이 끝나거나 취소되면 메인 제목 원상복구
             if self.remaining_shuttingDown_sec == 0:
                 self.shuttingDownMessage.configure(text="")
 
-    
 
 if __name__ == "__main__":
     app = App()
