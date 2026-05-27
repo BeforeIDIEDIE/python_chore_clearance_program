@@ -28,7 +28,8 @@ class App(ctk.CTk):
         # --- 3. 꺼짐 프레임 ---
         self.shutdown_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.create_shutDown_screen()
-        
+
+        self.label = ctk.CTkLabel(self.main_frame, text="n초뒤 꺼질예정..", font=("Pretendard", 30))
 
     def create_main_menu(self):
         """메인 메뉴 화면 구성"""
@@ -123,6 +124,18 @@ class App(ctk.CTk):
         self.shutdown_frame.pack_forget()
         self.main_frame.pack(fill="both", expand=True)
 
+    def show_shutdown_screen(self):
+        """메인 메뉴 숨기고 꺼짐 설정창 열기"""
+        self.status_label_sd.configure(text="") # 상태창 초기화
+        self.main_frame.pack_forget()
+        self.shutdown_frame.pack(fill="both", expand=True)
+
+    def show_setup_screen(self):
+        """메인 메뉴 숨기고 설정창 열기"""
+        self.status_label.configure(text="") # 상태창 초기화
+        self.main_frame.pack_forget()
+        self.setup_frame.pack(fill="both", expand=True)
+
     def confirm_validation_shutting_down(self):
         """꺼짐 시간 검증 및 파일 호출"""
         min_str = self.min_entry_sd.get() or "0"
@@ -151,11 +164,7 @@ class App(ctk.CTk):
         self.show_main_menu()
             
 
-    def show_setup_screen(self):
-        """메인 메뉴 숨기고 설정창 열기"""
-        self.status_label.configure(text="") # 상태창 초기화
-        self.main_frame.pack_forget()
-        self.setup_frame.pack(fill="both", expand=True)
+    
 
     def confirm_alarm(self):
         """예약 완료 버튼을 눌렀을 때 검증 및 실행"""
