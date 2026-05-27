@@ -16,6 +16,8 @@ class App(ctk.CTk):
         self.title("허드렛일 프로그램")
         self.geometry("600x500") # 입력창 배치를 위해 크기 살짝 조정
 
+        self.remaining_shuttingDown_sec = 0 # 꺼짐예약이 몇초뒤에 실행되는지 보여줌
+
         # --- 1. 메인 메뉴 프레임 ---
         self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.main_frame.pack(fill="both", expand=True)
@@ -26,11 +28,14 @@ class App(ctk.CTk):
         self.create_setup_screen()
 
         # --- 3. 꺼짐 프레임 ---
-        self.shutdown_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.create_shutDown_screen()
+        self.shuttingDown_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.create_shuttingDown_screen()
 
-        self.label = ctk.CTkLabel(self.main_frame, text="n초뒤 꺼질예정..", font=("Pretendard", 30))
+        self.shuttingDownMessage = ctk.CTkLabel(self.main_frame, text="", font=("Pretendard", 30))
+        self.shuttingDownMessage.pack(pady=20)
 
+#==============================================================================================================================================================================
+        
     def create_main_menu(self):
         """메인 메뉴 화면 구성"""
         self.label = ctk.CTkLabel(self.main_frame, text="허드렛일 목록", font=("Pretendard", 30))
@@ -41,7 +46,7 @@ class App(ctk.CTk):
         self.btn1.pack(pady=15)
 
         #람다는 한줄짜리 익명함수임        
-        self.btn2 = ctk.CTkButton(self.main_frame, text="2. 꺼짐 설정", command=self.show_shutdown_screen)
+        self.btn2 = ctk.CTkButton(self.main_frame, text="2. 꺼짐 설정", command=self.show_shuttingDown_screen)
         self.btn2.pack(pady=15)
         
         self.btn3 = ctk.CTkButton(self.main_frame, text="3. 다운로드 파일 정리", command=lambda: print("다운로드 정리"))
@@ -50,6 +55,14 @@ class App(ctk.CTk):
         self.btn4 = ctk.CTkButton(self.main_frame, text="4. 바탕화면 정리", command=lambda: print("바탕화면 정리"))
         self.btn4.pack(pady=15)
 
+    def show_main_menu(self):
+        """기존 show_main_menu 수정 (모든 프레임을 언팩하도록 안전장치)"""
+        self.setup_frame.pack_forget()
+        self.shuttingDown_frame.pack_forget()
+        self.main_frame.pack(fill="both", expand=True)
+
+#==============================================================================================================================================================================
+        
     def create_setup_screen(self):
         """알림 설정 상세 화면 구성"""
         self.setup_label = ctk.CTkLabel(self.setup_frame, text="알림 세부 설정", font=("Pretendard", 24))
@@ -85,86 +98,11 @@ class App(ctk.CTk):
         self.btn_back = ctk.CTkButton(self.setup_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.show_main_menu)
         self.btn_back.pack(pady=5)
 
-    def create_shutDown_screen(self):#내일 작성해
-        """꺼짐 화면 구성 (self.shutdown_frame 사용)"""
-        self.sd_label = ctk.CTkLabel(self.shutdown_frame, text="컴퓨터 꺼짐 예약", font=("Pretendard", 24))
-        self.sd_label.pack(pady=20)
-
-        ctk.CTkLabel(self.shutdown_frame, text="몇 분 몇 초 뒤에 끌지 입력하쇼", font=("Pretendard", 14)).pack(pady=(10, 0))
-        
-        time_frame = ctk.CTkFrame(self.shutdown_frame, fg_color="transparent")
-        time_frame.pack(pady=10)
-
-        self.min_entry_sd = ctk.CTkEntry(time_frame, width=70, placeholder_text="0")
-        self.min_entry_sd.pack(side="left", padx=5)
-        ctk.CTkLabel(time_frame, text="분", font=("Pretendard", 14)).pack(side="left", padx=(0, 15))
-
-        self.sec_entry_sd = ctk.CTkEntry(time_frame, width=70, placeholder_text="0")
-        self.sec_entry_sd.pack(side="left", padx=5)
-        ctk.CTkLabel(time_frame, text="초", font=("Pretendard", 14)).pack(side="left")
-
-        self.status_label_sd = ctk.CTkLabel(self.shutdown_frame, text="", font=("Pretendard", 13))
-        self.status_label_sd.pack(pady=10)
-
-        # 하단 버튼 구조
-        self.btn_save_sd = ctk.CTkButton(self.shutdown_frame, text="종료 예약 완료", fg_color="#2ecc71", hover_color="#27ae60", command=self.confirm_validation_shutting_down)
-        self.btn_save_sd.pack(pady=10)
-
-        # 종료예약 취소버튼
-        self.btn_cancel_sd = ctk.CTkButton(self.shutdown_frame, text="종료 예약 취소", fg_color="#f39c12", hover_color="#d35400", command=self.cancel_shutdown_job)
-        self.btn_cancel_sd.pack(pady=5)
-
-        self.btn_back_sd = ctk.CTkButton(self.shutdown_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.show_main_menu)
-        self.btn_back_sd.pack(pady=5)
-
-
-    # 기존 show_main_menu 수정 (모든 프레임을 언팩하도록 안전장치)
-    def show_main_menu(self):
-        self.setup_frame.pack_forget()
-        self.shutdown_frame.pack_forget()
-        self.main_frame.pack(fill="both", expand=True)
-
-    def show_shutdown_screen(self):
-        """메인 메뉴 숨기고 꺼짐 설정창 열기"""
-        self.status_label_sd.configure(text="") # 상태창 초기화
-        self.main_frame.pack_forget()
-        self.shutdown_frame.pack(fill="both", expand=True)
-
     def show_setup_screen(self):
         """메인 메뉴 숨기고 설정창 열기"""
         self.status_label.configure(text="") # 상태창 초기화
         self.main_frame.pack_forget()
         self.setup_frame.pack(fill="both", expand=True)
-
-    def confirm_validation_shutting_down(self):
-        """꺼짐 시간 검증 및 파일 호출"""
-        min_str = self.min_entry_sd.get() or "0"
-        sec_str = self.sec_entry_sd.get() or "0"
-        minutes = float(min_str)
-        seconds = float(sec_str)
-        try:     
-            minutes = float(min_str)
-            seconds = float(sec_str)
-            total_sec = minutes * 60 + seconds
-
-            if total_sec <= 0:
-                self.status_label_sd.configure(text="0보단... 큰수로...", text_color="#e74c3c")
-                return
-                
-        except ValueError:
-            self.status_label_sd.configure(text="시간엔 숫자만.......", text_color="#e74c3c")
-            return
-
-        # shuttingDown.py 내부 함수 호출
-        shuttingDown.ShuttingDown(int(total_sec))
-
-    def cancel_shutdown_job(self):
-        """종료 취소 버튼 맵핑"""
-        shuttingDown.CancelShuttingDown()
-        self.show_main_menu()
-            
-
-    
 
     def confirm_alarm(self):
         """예약 완료 버튼을 눌렀을 때 검증 및 실행"""
@@ -205,6 +143,101 @@ class App(ctk.CTk):
         self.sec_entry.delete(0, 'end')
         
         self.show_main_menu()
+
+#==============================================================================================================================================================================
+        
+    def create_shuttingDown_screen(self):
+        """꺼짐 화면 구성 (self.shuttingDown_frame 사용)"""
+        self.sd_label = ctk.CTkLabel(self.shuttingDown_frame, text="컴퓨터 꺼짐 예약", font=("Pretendard", 24))
+        self.sd_label.pack(pady=20)
+
+        ctk.CTkLabel(self.shuttingDown_frame, text="몇 분 몇 초 뒤에 끌지 입력하쇼", font=("Pretendard", 14)).pack(pady=(10, 0))
+        
+        time_frame = ctk.CTkFrame(self.shuttingDown_frame, fg_color="transparent")
+        time_frame.pack(pady=10)
+
+        self.min_entry_sd = ctk.CTkEntry(time_frame, width=70, placeholder_text="0")
+        self.min_entry_sd.pack(side="left", padx=5)
+        ctk.CTkLabel(time_frame, text="분", font=("Pretendard", 14)).pack(side="left", padx=(0, 15))
+
+        self.sec_entry_sd = ctk.CTkEntry(time_frame, width=70, placeholder_text="0")
+        self.sec_entry_sd.pack(side="left", padx=5)
+        ctk.CTkLabel(time_frame, text="초", font=("Pretendard", 14)).pack(side="left")
+
+        self.status_label_sd = ctk.CTkLabel(self.shuttingDown_frame, text="", font=("Pretendard", 13))
+        self.status_label_sd.pack(pady=10)
+
+        # 하단 버튼 구조
+        self.btn_save_sd = ctk.CTkButton(self.shuttingDown_frame, text="종료 예약 완료", fg_color="#2ecc71", hover_color="#27ae60", command=self.confirm_validation_shutting_down)
+        self.btn_save_sd.pack(pady=10)
+
+        # 종료예약 취소버튼
+        self.btn_cancel_sd = ctk.CTkButton(self.shuttingDown_frame, text="종료 예약 취소", fg_color="#f39c12", hover_color="#d35400", command=self.cancel_shuttingDown_job)
+        self.btn_cancel_sd.pack(pady=5)
+
+        self.btn_back_sd = ctk.CTkButton(self.shuttingDown_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.show_main_menu)
+        self.btn_back_sd.pack(pady=5)
+
+
+    def show_shuttingDown_screen(self):
+        """메인 메뉴 숨기고 꺼짐 설정창 열기"""
+        self.status_label_sd.configure(text="") # 상태창 초기화
+        self.main_frame.pack_forget()
+        self.shuttingDown_frame.pack(fill="both", expand=True)
+
+    def confirm_validation_shutting_down(self):
+        """꺼짐 시간 검증 및 파일 호출"""
+        min_str = self.min_entry_sd.get() or "0"
+        sec_str = self.sec_entry_sd.get() or "0"
+        
+        try:     
+            minutes = float(min_str)
+            seconds = float(sec_str)
+            total_sec = minutes * 60 + seconds
+
+            if total_sec <= 0:
+                self.status_label_sd.configure(text="0보단... 큰수로...", text_color="#e74c3c")
+                return
+                
+        except ValueError:
+            self.status_label_sd.configure(text="시간엔 숫자만.......", text_color="#e74c3c")
+            return
+
+        # shuttingDown.py 내부 함수 호출
+        shuttingDown.ShuttingDown(int(total_sec))
+
+        self.remaining_shuttingDown_sec = int(total_sec)
+        self.update_shuttingDown_timer() 
+        self.min_entry_sd.delete(0, 'end')
+        self.sec_entry_sd.delete(0, 'end')
+        self.show_main_menu()
+
+    def cancel_shuttingDown_job(self):
+        """종료 취소 버튼 맵핑"""
+        shuttingDown.CancelShuttingDown()
+        self.remaining_shuttingDown_sec = 0
+        self.shuttingDownMessage.configure(text="")
+        self.show_main_menu()
+
+    def update_shuttingDown_timer(self):
+        if self.remaining_shuttingDown_sec > 0:
+            m = self.remaining_shuttingDown_sec // 60 #파이썬에서 //은 나머지는 제외 몫만 남긴다
+            s = self.remaining_shuttingDown_sec % 60
+            
+            # 메인 화면 텍스트 갱신
+            self.shuttingDownMessage.configure(text=f"({m}분 {s}초 뒤 시스템 종료)")
+            
+            # 1초 감소
+            self.remaining_shuttingDown_sec -= 1
+            
+            # 1000밀리초(1초) 뒤에 자기 자신(update_shuttingDown_timer)을 다시 호출
+            self.after(1000, self.update_shuttingDown_timer)
+        else:
+            # 예약 시간이 끝나거나 취소되면 메인 제목 원상복구
+            if self.remaining_shuttingDown_sec == 0:
+                self.shuttingDownMessage.configure(text="")
+
+    
 
 if __name__ == "__main__":
     app = App()
