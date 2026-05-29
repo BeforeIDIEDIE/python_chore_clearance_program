@@ -37,7 +37,7 @@ class App(ctk.CTk):
 
         # --- 4. 휴지통 자동비우기 --- # rubbishBinClear
         self.rubbishBinClear_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.CreateRubbishBinScreen()
+        self.CreateRubbishBinClearScreen()
         
 
 #==============================================================================================================================================================================
@@ -54,17 +54,26 @@ class App(ctk.CTk):
         #람다는 한줄짜리 익명함수임        
         self.btn2 = ctk.CTkButton(self.main_frame, text="2. 꺼짐 설정", command=self.ShowShuttingDownScreen)
         self.btn2.pack(pady=15)
-        
-        self.btn3 = ctk.CTkButton(self.main_frame, text="3. 다운로드 파일 정리", command=lambda: print("다운로드 정리"))
+
+        self.btn3 = ctk.CTkButton(
+            self.main_frame,
+            text="3. 휴지통 자동 비우기",
+            command=self.ShowRubbishBinClearScreen,
+        )
         self.btn3.pack(pady=15)
+
         
-        self.btn4 = ctk.CTkButton(self.main_frame, text="4. 바탕화면 정리", command=lambda: print("바탕화면 정리"))
-        self.btn4.pack(pady=15)
+        #self.btn3 = ctk.CTkButton(self.main_frame, text="3. 다운로드 파일 정리", command=lambda: print("다운로드 정리"))
+        #self.btn3.pack(pady=15)
+        
+        #self.btn4 = ctk.CTkButton(self.main_frame, text="4. 바탕화면 정리", command=lambda: print("바탕화면 정리"))
+        #self.btn4.pack(pady=15)
 
     def ShowMainMenu(self):
         """기존 show_main_menu 수정 (모든 프레임을 언팩하도록 안전장치)"""
         self.setup_frame.pack_forget()
         self.shuttingDown_frame.pack_forget()
+        self.rubbishBinClear_frame.pack_forget()
         self.main_frame.pack(fill="both", expand=True)
 
 #==============================================================================================================================================================================
@@ -243,13 +252,74 @@ class App(ctk.CTk):
 #==============================================================================================================================================================================
     def CreateRubbishBinClearScreen(self):
         #각 버튼 토글 쓸거임 |기능 비활성화 | 10일 | 30일
-        print("해당 기능의 파일에 json에서 일자 긁어오는 기능 쓸거임")
+        self.rb_label = ctk.CTkLabel(
+            self.rubbishBinClear_frame,
+            text="휴지통 자동 비우기 설정",
+            font=("Pretendard", 24),
+        )
+        self.rb_label.pack(pady=20)
 
-    def ShowSetupScreen(self):
-        """메인 메뉴 숨기고 설정창 열기"""
-        self.status_label.configure(text="") # 상태창 초기화
+        self.current_period_label = ctk.CTkLabel(
+            self.rubbishBinClear_frame,
+            text="현재 설정된 주기: 불러오는 중...",
+            font=("Pretendard", 15),
+        )
+        self.current_period_label.pack(pady=10)
+
+        self.seg_button = ctk.CTkSegmentedButton(
+            self.rubbishBinClear_frame,
+            values=["기능 비활성화", "10일", "30일"],
+            command=self.OnToggleChanged,
+            font=("Pretendard", 14),
+        )
+        self.seg_button.pack(pady=20, padx=20)
+
+        self.btn_back_rb = ctk.CTkButton(
+            self.rubbishBinClear_frame,
+            text="메인으로 돌아가기",
+            fg_color="#e74c3c",
+            hover_color="#c0392b",
+            command=self.ShowMainMenu,
+        )
+        self.btn_back_rb.pack(pady=30)
+
+    def ShowRubbishBinClearScreen(self):
+        current_setting, next_clear_date = RBC.LoadInfo()
+
+        if current_setting == 0:
+            self.current_period_label.configure(
+                text="현재 설정: 자동 비우기가 꺼져 있습니다."
+            )
+            self.seg_button.set("기능 비활성화")
+        else:
+            self.current_period_label.configure(
+                text=f"현재 설정: {current_setting}일 마다 비우기\n(다음 비우기 날짜: {next_clear_date})"
+            )
+            self.seg_button.set(f"{current_setting}일")
+
         self.main_frame.pack_forget()
-        self.setup_frame.pack(fill="both", expand=True)
+        self.rubbishBinClear_frame.pack(fill="both", expand=True)
+
+    def OnToggleChanged(self, value):
+        #파이썬에서 if문 내부 스코프에서 변수를 생성하고 if문 내부에서 변수를 사용시 에러가 일어나지 않는다!!!같은 모듈내부라면 별도의 스코프 존재하지 않
+        if value == "기능 비활성화":
+            days = 0
+        elif value == "10일":
+            days = 10
+        elif value == "30일":
+            days = 30
+
+        next_date = RBC.SetRubbishBinClearDate(days)
+
+        if days == 0:
+            self.current_period_label.configure(
+                text="설정이 변경되었습니다: 자동 비우기 해제"
+            )
+        else:
+            self.current_period_label.configure(
+                text=f"설정이 변경되었습니다: {days}일 주기\n(다음 비우기 날짜: {next_date})"
+            )
+        
 if __name__ == "__main__":
     app = App()
     app.mainloop()
