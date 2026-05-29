@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import sendingNotification #알림기능용 파일
 import shuttingDown#꺼짐기능용 파일
+import rubbishBinClear as RBC #휴지통 자동비우기 파일
 #할일 리스트
 #바탕화면 정리
 #다운로드 화면 정리
@@ -33,6 +34,11 @@ class App(ctk.CTk):
 
         self.shuttingDownMessage = ctk.CTkLabel(self.main_frame, text="", font=("Pretendard", 30))
         self.shuttingDownMessage.pack(pady=20)
+
+        # --- 4. 휴지통 자동비우기 --- # rubbishBinClear
+        self.rubbishBinClear_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.CreateRubbishBinScreen()
+        
 
 #==============================================================================================================================================================================
         
@@ -234,7 +240,16 @@ class App(ctk.CTk):
             if self.remaining_shuttingDown_sec == 0:
                 self.shuttingDownMessage.configure(text="")
 
+#==============================================================================================================================================================================
+    def CreateRubbishBinClearScreen(self):
+        #각 버튼 토글 쓸거임 |기능 비활성화 | 10일 | 30일
+        print("해당 기능의 파일에 json에서 일자 긁어오는 기능 쓸거임")
 
+    def ShowSetupScreen(self):
+        """메인 메뉴 숨기고 설정창 열기"""
+        self.status_label.configure(text="") # 상태창 초기화
+        self.main_frame.pack_forget()
+        self.setup_frame.pack(fill="both", expand=True)
 if __name__ == "__main__":
     app = App()
     app.mainloop()
