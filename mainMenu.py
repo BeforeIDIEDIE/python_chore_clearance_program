@@ -2,6 +2,7 @@ import customtkinter as ctk
 import sendingNotification #알림기능용 파일
 import shuttingDown#꺼짐기능용 파일
 import rubbishBinClear as RBC #휴지통 자동비우기 파일
+import backGroundClear as BGC #바탕화면 정리 파일
 #할일 리스트
 #바탕화면 정리
 #다운로드 화면 정리
@@ -35,9 +36,9 @@ class App(ctk.CTk):
         self.shuttingDownMessage = ctk.CTkLabel(self.main_frame, text="", font=("Pretendard", 30))
         self.shuttingDownMessage.pack(pady=20)
 
-        # --- 4. 휴지통 자동비우기 --- # rubbishBinClear
-        self.rubbishBinClear_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.CreateRubbishBinClearScreen()
+        # --- 4. 바탕화면 정리 프레임 ---
+        self.backgroundClear_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.CreateBackgroundClearScreen()
         
 
 #==============================================================================================================================================================================
@@ -55,12 +56,15 @@ class App(ctk.CTk):
         self.btn2 = ctk.CTkButton(self.main_frame, text="2. 꺼짐 설정", command=self.ShowShuttingDownScreen)
         self.btn2.pack(pady=15)
 
-        self.btn3 = ctk.CTkButton(
-            self.main_frame,
-            text="3. 휴지통 자동 비우기",
-            command=self.ShowRubbishBinClearScreen,
-        )
+        self.btn3 = ctk.CTkButton(self.main_frame, text="3. 바탕화면 정리", command=self.ShowBackgroundClearScreen)
         self.btn3.pack(pady=15)
+        
+        #self.btn3 = ctk.CTkButton(
+        #    self.main_frame,
+        #    text="3. 휴지통 자동 비우기",
+        #   command=self.ShowRubbishBinClearScreen,
+        #)
+        #self.btn3.pack(pady=15)
 
         
         #self.btn3 = ctk.CTkButton(self.main_frame, text="3. 다운로드 파일 정리", command=lambda: print("다운로드 정리"))
@@ -73,7 +77,8 @@ class App(ctk.CTk):
         """기존 show_main_menu 수정 (모든 프레임을 언팩하도록 안전장치)"""
         self.setup_frame.pack_forget()
         self.shuttingDown_frame.pack_forget()
-        self.rubbishBinClear_frame.pack_forget()
+        self.backgroundClear_frame.pack_forget()
+        #self.rubbishBinClear_frame.pack_forget()
         self.main_frame.pack(fill="both", expand=True)
 
 #==============================================================================================================================================================================
@@ -248,6 +253,25 @@ class App(ctk.CTk):
             # 예약 시간이 끝나거나 취소되면 메인 제목 원상복구
             if self.remaining_shuttingDown_sec == 0:
                 self.shuttingDownMessage.configure(text="")
+
+#==============================================================================================================================================================================
+    def CreateBackgroundClearScreen(self):
+        self.bc_label = ctk.CTkLabel(self.backgroundClear_frame, text="바탕화면 정리", font=("Pretendard", 24))
+        self.bc_label.pack(pady=20)
+
+        self.btn_clear_bg = ctk.CTkButton(self.backgroundClear_frame, text="바탕화면 정리 실행", fg_color="#3498db", hover_color="#2980b9", command=self.ClearBackGround)
+        self.btn_clear_bg.pack(pady=30)
+
+        self.btn_back_bc = ctk.CTkButton(self.backgroundClear_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.ShowMainMenu)
+        self.btn_back_bc.pack(pady=30)
+
+    def ShowBackgroundClearScreen(self):
+        self.main_frame.pack_forget()
+        self.backgroundClear_frame.pack(fill="both", expand=True)
+    
+    def ClearBackGround(self):
+        BGC.ClearBackGround()#바탕화면 정리 함수 호출
+        self.ShowMainMenu()
 
 #==============================================================================================================================================================================
     def CreateRubbishBinClearScreen(self):
