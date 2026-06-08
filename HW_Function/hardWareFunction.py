@@ -4,6 +4,7 @@ import os
 import subprocess
 import bs4 #beautifulsoup4는 bs4 라는 별칭으로 써야됨, html파싱 라이브러리~
 import pandas as pd
+
 #HW관련 기능 메뉴
 
 def BatteryReport():
@@ -63,7 +64,77 @@ def BatteryReport():
                 pass
                 
     return battery_data
+
+#배터리 리포트 결과를 보여주는 팝업창 띄우는 함수
+#재사용할수도 있어서 배터리 리포트 결과를 보여주는 팝업창 띄우는 함수는 따로 빼놓음
+def OpenBatteryResultPopup(parent, battery_data):
+
+    popup = ctk.CTkToplevel(parent)
+    popup.title("배터리 리포트 결과")
+    popup.geometry("400x450")
+    popup.attributes("-topmost", True)  # 항상 위 설정
     
+    # 타이틀 레이블
+    title_label = ctk.CTkLabel(popup, text="🔋 배터리 분석 결과", font=("Pretendard", 20, "bold"))
+    title_label.pack(pady=(20, 10))
+    
+    # 딕셔너리 데이터를 예쁜 문자열 포맷으로 변환
+    report_text = "====================================\n"
+    report_text += "        BATTERY REPORT DETAILS      \n"
+    report_text += "====================================\n\n"
+    
+    
+    # 매개변수 battery_data의 아이템들을 순회
+    for key, value in battery_data.items():
+        report_text += f"▶ {key:<15} : {value}\n\n"
+        if key.upper() == "DESIGN CAPACITY":
+            design_capacity = float("".join(filter(str.isdigit, value)))
+            #"".join~뭐시기 이리썼는데 ""안의 문자를 구분자로 리스트의 요소들을 하나의 문자열로 합치는 메서드임
+        if key.upper() == "FULL CHARGE CAPACITY":
+            full_charge_capacity = float("".join(filter(str.isdigit, value)))
+    if design_capacity and full_charge_capacity:
+        percentage = (full_charge_capacity / design_capacity) * 100
+        report_text += f"▶ BATTERY HEALTH : {percentage:.2f}%\n\n"
+        match True:
+            case _ if percentage >= 85:
+                report_text += "배터리 양호\n"
+            case _ if percentage >= 80:
+                report_text += "배터리 보통\n"
+            case _ if percentage >= 70:
+                report_text += "배터리 주의\n"
+            case _:
+                report_text += "배터리 나쁨\n"
+    report_text += "===================================="
+
+    # 텍스트 상자 생성 및 데이터 삽입
+    result_textbox = ctk.CTkTextbox(popup, width=350, height=260, font=("Pretendard", 14))
+    result_textbox.pack(pady=10, padx=20)
+    
+    result_textbox.insert("0.0", report_text)
+    result_textbox.configure(state="disabled")  # 읽기 전용으로 잠금
+        
+    # 닫기 버튼
+    close_button = ctk.CTkButton(popup, text="확인", fg_color="#3498db", hover_color="#2980b9", command=popup.destroy)
+    close_button.pack(pady=(10, 20))
+
+
+def UsageAnalysis(parent):
+    """사용시간 및 에너지 분석 리포트 생성 (관리자 권한 필요, 약 60초 소요)"""
+    # CustomTkinter 표준에 맞춘 간단한 상태창 알림 팝업 함수
+    def show_alert(title, message):
+        alert = ctk.CTkToplevel(parent)
+        alert.title(title)
+        alert.geometry("350x150")
+        alert.attributes("-topmost", True)
+        ctk.CTkLabel(alert, text=message, font=("Pretendard", 13), wraplength=300).pack(pady=30)
+        ctk.CTkButton(alert, text="확인", width=100, command=alert.destroy).pack()
+
+    try:
+        # 주석: powercfg /energy 명령어는 기본적으로 60초 동안 시스템을 관찰하므로 멈춘 것처럼 보일 수 있음
+        subprocess.run("powercfg /energy /output energy_report.html", shell=True, check=True, stdout=subprocess.DEVNULL)
+        show_alert("성공", "사용시간(에너지) 분석 리포트가 현재 폴더에 energy_report.html 파일로 생성되었습니다.")
+    except subprocess.CalledProcessError as e:
+        show_alert("오류", "리포트 생성에 실패했습니다.\n(이 기능은 '관리자 권한'으로 실행해야 합니다.)")
 
 def UsageAnalysis():
     #판다스 사용해서 주단위 사용시간 분석 리포트 만들예정

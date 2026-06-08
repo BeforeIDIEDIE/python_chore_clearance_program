@@ -373,8 +373,10 @@ class MainMenu(ctk.CTk):
         self.hardWare_frame.pack(fill="both", expand=True)
 
     def ShowBatteryReport(self):
-        result = HWF.BatteryReport()
-        # 해당부분에 결과를 보여주는 창 띄우는 코드 추가해야됨
+        resultBattery = HWF.BatteryReport()
+        HWF.OpenBatteryResultPopup(self, resultBattery)
+
+
     def ShowUsageAnalysis(self):
         HWF.UsageAnalysis()
         
