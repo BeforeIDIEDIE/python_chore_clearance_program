@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import customtkinter as ctk
 import os
 import subprocess
-import beautifulsoup4 as bs4
+import bs4 #beautifulsoup4는 bs4 라는 별칭으로 써야됨, html파싱 라이브러리~
 import pandas as pd
 #HW관련 기능 메뉴
 

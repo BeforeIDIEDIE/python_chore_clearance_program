@@ -63,6 +63,9 @@ class MainMenu(ctk.CTk):
 
         self.btn3 = ctk.CTkButton(self.main_frame, text="3. 바탕화면 정리", command=self.ShowBackgroundClearScreen)
         self.btn3.pack(pady=15)
+
+        self.btn4 = ctk.CTkButton(self.main_frame, text="4. 하드웨어 관련", command=self.ShowHardWareFunctionScreen)
+        self.btn4.pack(pady=15)
         
         #self.btn3 = ctk.CTkButton(
         #    self.main_frame,
@@ -84,7 +87,9 @@ class MainMenu(ctk.CTk):
         self.shuttingDown_frame.pack_forget()
         self.backgroundClear_frame.pack_forget()
         #self.rubbishBinClear_frame.pack_forget()
+        self.hardWare_frame.pack_forget()
         self.main_frame.pack(fill="both", expand=True)
+
 
 #==============================================================================================================================================================================
         
@@ -351,13 +356,13 @@ class MainMenu(ctk.CTk):
             )
 #==============================================================================================================================================================================
     def CreateHardWareFunctionScreen(self):
-        self.label = ctk.CTkLabel(self.main_frame, text="하드웨어 관련", font=("Pretendard", 30))
+        self.label = ctk.CTkLabel(self.hardWare_frame, text="하드웨어 관련 기능", font=("Pretendard", 30))
         self.label.pack(pady=30)
 
-        self.btn1 = ctk.CTkButton(self.main_frame, text="1. 배터리 리포트", command=self.ShowBatteryReport)
+        self.btn1 = ctk.CTkButton(self.hardWare_frame, text="1. 배터리 리포트", command=self.ShowBatteryReport)
         self.btn1.pack(pady=15)
 
-        self.btn2 = ctk.CTkButton(self.main_frame, text="2. 사용시간 분석", command=self.ShowUsageAnalysis)
+        self.btn2 = ctk.CTkButton(self.hardWare_frame, text="2. 사용시간 분석", command=self.ShowUsageAnalysis)
         self.btn2.pack(pady=15)
 
         self.btn_back = ctk.CTkButton(self.hardWare_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.ShowMainMenu)
@@ -368,8 +373,8 @@ class MainMenu(ctk.CTk):
         self.hardWare_frame.pack(fill="both", expand=True)
 
     def ShowBatteryReport(self):
-        HWF.BatteryReport()
-    
+        result = HWF.BatteryReport()
+        # 해당부분에 결과를 보여주는 창 띄우는 코드 추가해야됨
     def ShowUsageAnalysis(self):
         HWF.UsageAnalysis()
         
