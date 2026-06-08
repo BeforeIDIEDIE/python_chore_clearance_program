@@ -39,7 +39,7 @@ def ClearBackGround():
                 
             # 4. 안전하게 파일 이동 (os.rename 대신 다른 드라이브간 이동도 지원하는 shutil.move 사용)
             try:
-                shutil.move(item_path, target_path)
+                shutil.move(item_path, target_path)#Shell Utilities라이브러리는 파일 복사, 이동, 삭제이런 굵직한 기능 담당임
             except PermissionError:
                 print(f"⚠️ 파일이 사용 중입니다: {item} (스킵됨)")
             except Exception as e:

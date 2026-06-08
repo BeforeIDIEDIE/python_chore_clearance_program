@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from HW_Function import hardWareFunction as HWF # 하드웨어 기능제어파일 모둠
 import sendingNotification #알림기능용 파일
 import shuttingDown#꺼짐기능용 파일
 import rubbishBinClear as RBC #휴지통 자동비우기 파일
@@ -11,7 +12,7 @@ import backGroundClear as BGC #바탕화면 정리 파일
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-class App(ctk.CTk):
+class MainMenu(ctk.CTk):
     def __init__(self):
         super().__init__()
 
@@ -39,6 +40,10 @@ class App(ctk.CTk):
         # --- 4. 바탕화면 정리 프레임 ---
         self.backgroundClear_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.CreateBackgroundClearScreen()
+
+        # --- 5. 하드웨어 기능 프레임 ---
+        self.hardWare_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.CreateHardWareFunctionScreen()
         
 
 #==============================================================================================================================================================================
@@ -274,6 +279,7 @@ class App(ctk.CTk):
         self.ShowMainMenu()
 
 #==============================================================================================================================================================================
+    #휴지통 자동 비우기 안쓰는 기능임 | 필요하면 나중에 추가할듯
     def CreateRubbishBinClearScreen(self):
         #각 버튼 토글 쓸거임 |기능 비활성화 | 10일 | 30일
         self.rb_label = ctk.CTkLabel(
@@ -343,7 +349,30 @@ class App(ctk.CTk):
             self.current_period_label.configure(
                 text=f"설정이 변경되었습니다: {days}일 주기\n(다음 비우기 날짜: {next_date})"
             )
+#==============================================================================================================================================================================
+    def CreateHardWareFunctionScreen(self):
+        self.label = ctk.CTkLabel(self.main_frame, text="하드웨어 관련", font=("Pretendard", 30))
+        self.label.pack(pady=30)
+
+        self.btn1 = ctk.CTkButton(self.main_frame, text="1. 배터리 리포트", command=self.ShowBatteryReport)
+        self.btn1.pack(pady=15)
+
+        self.btn2 = ctk.CTkButton(self.main_frame, text="2. 사용시간 분석", command=self.ShowUsageAnalysis)
+        self.btn2.pack(pady=15)
+
+        self.btn_back = ctk.CTkButton(self.hardWare_frame, text="메인으로 돌아가기", fg_color="#e74c3c", hover_color="#c0392b", command=self.ShowMainMenu)
+        self.btn_back.pack(pady=30)
+
+    def ShowHardWareFunctionScreen(self):
+        self.main_frame.pack_forget()
+        self.hardWare_frame.pack(fill="both", expand=True)
+
+    def ShowBatteryReport(self):
+        HWF.BatteryReport()
+    
+    def ShowUsageAnalysis(self):
+        HWF.UsageAnalysis()
         
 if __name__ == "__main__":
-    app = App()
+    app = MainMenu()
     app.mainloop()
